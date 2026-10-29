@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صندوق فروش</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Tahoma, Vazirmatn, sans-serif;
+            background: #eef2f5;
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        /* ===== هدر ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+        }
+        .header h1 { font-size: 22px; }
+        .header .user {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 15px;
+        }
+        .header button {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .header button:hover { background: #dc2626; }
+
+        /* ===== پیام‌ها ===== */
+        .messages { margin-bottom: 16px; }
+        .message {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .message.success { background: #d1fae5; color: #065f46; border-right: 5px solid #10b981; }
+        .message.error   { background: #fee2e2; color: #991b1b; border-right: 5px solid #ef4444; }
+
+        /* ===== شبکه کالاها ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            transition: box-shadow 0.15s, transform 0.15s;
+            border: 2px solid transparent;
+        }
+        .card.selected { border-color: #3b82f6; box-shadow: 0 4px 16px rgba(59,130,246,0.25); }
+
+        .card .name {
+            font-size: 19px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        .card .price {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+        .card .stock {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        .card .stock.low { color: #ef4444; font-weight: bold; }
+
+        /* ===== کنترل تعداد ===== */
+        .qty-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .qty-control button {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #e2e8f0;
+            color: #1e293b;
+            transition: background 0.1s;
+            font-family: inherit;
+        }
+        .qty-control button:hover { background: #cbd5e1; }
+        .qty-control button.minus { background: #fee2e2; color: #b91c1c; }
+        .qty-control button.minus:hover { background: #fecaca; }
+        .qty-control button.plus  { background: #dbeafe; color: #1d4ed8; }
+        .qty-control button.plus:hover { background: #bfdbfe; }
+
+        .qty-display {
+            flex: 1;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: #1e293b;
+            min-width: 40px;
+        }
+        .qty-display.has-value { color: #2563eb; }
+
+        /* ===== نوار پایین (مبلغ کل + ثبت) ===== */
+        .bottom-bar {
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px 22px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .total-box { display: flex; flex-direction: column; }
+        .total-box .label { font-size: 14px; color: #64748b; margin-bottom: 2px; }
+        .total-box .amount {
+            font-size: 34px;
+            font-weight: bold;
+            color: #059669;
+            line-height: 1.1;
+        }
+        .total-box .amount small { font-size: 16px; color: #64748b; font-weight: normal; }
+
+        .submit-btn {
+            background: #10b981;
+            color: #fff;
+            border: none;
+            padding: 18px 48px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.35);
+        }
+        .submit-btn:hover { background: #059669; }
+        .submit-btn:active { transform: scale(0.97); }
+        .submit-btn:disabled {
+            background: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* ===== موبایل ===== */
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            .header h1 { font-size: 17px; }
+            .bottom-bar { flex-direction: column; align-items: stretch; }
+            .total-box { text-align: center; }
+            .submit-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- هدر -->
+    <div class="header">
+        <h1>🛒 صندوق فروش</h1>
+        <div class="user">
+            <span>👤 {{ request.user.username }}</span>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">خروج</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- پیام‌ها -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- فرم -->
+    <form method="post" id="checkout-form">
+        {% csrf_token %}
+
+        <div class="grid">
+            {% for product in products %}
+            <div class="card" data-card-id="{{ product.id }}">
+                <div class="name">{{ product.name }}</div>
+                <div class="price">{{ product.sell_price|floatformat:0 }} تومان</div>
+                <div class="stock {% if product.is_low_stock %}low{% endif %}">
+                    {% if product.is_low_stock %}⚠️ {% endif %}موجودی: {{ product.stock }}
+                </div>
+                <div class="qty-control">
+                    <button type="button" class="minus" data-action="minus">−</button>
+                    <span class="qty-display" data-display-id="{{ product.id }}">0</span>
+                    <button type="button" class="plus" data-action="plus">+</button>
+                </div>
+                <input type="hidden" name="qty_{{ product.id }}" id="qty_{{ product.id }}" value="0">
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- نوار پایین -->
+        <div class="bottom-bar">
+            <div class="total-box">
+                <span class="label">مبلغ کل قابل پرداخت</span>
+                <span class="amount"><span id="total">0</span> <small>تومان</small></span>
+            </div>
+            <button type="submit" class="submit-btn" id="submit-btn" disabled>
+                ✅ ثبت فروش
+            </button>
+        </div>
+    </form>
+
+    <script>
+        // ===== مدیریت تعداد با دکمه‌های + و − =====
+        document.querySelectorAll('.card').forEach(card => {
+            const productId = card.dataset.cardId;
+            const display = card.querySelector(`[data-display-id="${productId}"]`);
+            const hiddenInput = document.getElementById(`qty_${productId}`);
+            const minusBtn = card.querySelector('[data-action="minus"]');
+            const plusBtn = card.querySelector('[data-action="plus"]');
+            const stock = parseInt(card.querySelector('.stock').textContent.replace(/\D/g, '')) || 0;
+
+            function updateQty(newVal) {
+                if (newVal < 0) newVal = 0;
+                if (newVal > stock) newVal = stock;
+                hiddenInput.value = newVal;
+                display.textContent = newVal;
+                display.classList.toggle('has-value', newVal > 0);
+                card.classList.toggle('selected', newVal > 0);
+                updateTotal();
+            }
+
+            minusBtn.addEventListener('click', () => {
+                updateQty(parseInt(hiddenInput.value) - 1);
+            });
+            plusBtn.addEventListener('click', () => {
+                updateQty(parseInt(hiddenInput.value) + 1);
+            });
+        });
+
+        // ===== محاسبه زنده مبلغ کل =====
+        function updateTotal() {
+            let total = 0;
+            let anyItem = false;
+
+            document.querySelectorAll('input[type=hidden]').forEach(inp => {
+                const qty = parseInt(inp.value) || 0;
+                if (qty <= 0) return;
+                anyItem = true;
+                const card = inp.closest('.card');
+                const price = parseInt(card.querySelector('.price').textContent.replace(/\D/g, '')) || 0;
+                total += qty * price;
+            });
+
+            document.getElementById('total').textContent = total.toLocaleString('fa-IR');
+            document.getElementById('submit-btn').disabled = !anyItem;
+        }
+
+        // ===== جلوگیری از ارسال دوباره با دکمه Enter =====
+        document.getElementById('checkout-form').addEventListener('keydown', e => {
+            if (e.key === 'Enter') e.preventDefault();
+        });
+    </script>
+
+</body>
+</html>

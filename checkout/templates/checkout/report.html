@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش فروش</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #f4f4f4; padding: 20px; }
+        h1 { text-align: center; }
+        .cards { display: flex; gap: 15px; max-width: 900px; margin: 20px auto; flex-wrap: wrap; }
+        .card { flex: 1; min-width: 200px; background: #fff; padding: 20px;
+                border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .card .label { color: #666; font-size: 14px; margin-bottom: 8px; }
+        .card .value { font-size: 26px; font-weight: bold; color: #333; }
+        .card.green .value { color: #28a745; }
+        .card.blue .value { color: #007bff; }
+        table { width: 100%; max-width: 900px; margin: 20px auto; border-collapse: collapse;
+                background: #fff; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: right; }
+        th { background: #333; color: #fff; }
+        h2 { max-width: 900px; margin: 30px auto 10px; font-size: 18px; }
+        .low { color: #c00; font-weight: bold; }
+        .back { text-align: center; margin-top: 30px; }
+        .back a { color: #007bff; text-decoration: none; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>📊 گزارش فروش</h1>
+
+    <div class="cards">
+        <div class="card green">
+            <div class="label">فروش امروز</div>
+            <div class="value">{{ today_sales|floatformat:0 }} تومان</div>
+        </div>
+        <div class="card blue">
+            <div class="label">فروش ۷ روز اخیر</div>
+            <div class="value">{{ week_sales|floatformat:0 }} تومان</div>
+        </div>
+        <div class="card">
+            <div class="label">تعداد فاکتور امروز</div>
+            <div class="value">{{ today_count }}</div>
+        </div>
+    </div>
+
+    <h2>🔥 پرفروش‌ترین کالاها (۷ روز اخیر)</h2>
+    <table>
+        <thead>
+            <tr><th>کالا</th><th>تعداد فروش</th></tr>
+        </thead>
+        <tbody>
+            {% for item in top_products %}
+                <tr><td>{{ item.product__name }}</td><td>{{ item.qty }}</td></tr>
+            {% empty %}
+                <tr><td colspan="2">فروشی ثبت نشده است.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>⚠️ کالاهای کم‌موجود</h2>
+    <table>
+        <thead>
+            <tr><th>کالا</th><th>موجودی</th></tr>
+        </thead>
+        <tbody>
+            {% for p in low_stock %}
+                <tr><td>{{ p.name }}</td><td class="low">{{ p.stock }}</td></tr>
+            {% empty %}
+                <tr><td colspan="2">همه کالاها موجودی کافی دارند.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="back">
+        <a href="{% url 'report_csv' %}?range=today">⬇️ دانلود CSV امروز</a> |
+        <a href="{% url 'report_csv' %}?range=week">⬇️ دانلود CSV هفته</a> |
+        <a href="{% url 'sale_list' %}">🧾 فاکتورهای فروش</a> |
+        <a href="{% url 'checkout' %}">← بازگشت به صندوق</a>        
+    </div>
+</body>
+</html>

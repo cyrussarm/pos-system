@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>فاکتورهای فروش</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Tahoma, sans-serif; background: #eef2f5; padding: 16px; }
+        h1 { text-align: center; margin-bottom: 20px; color: #1e293b; }
+        .toolbar { max-width: 1000px; margin: 0 auto 16px; display: flex;
+                   justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .toolbar a { color: #2563eb; text-decoration: none; font-size: 15px; }
+        .toolbar a:hover { text-decoration: underline; }
+        .messages { max-width: 1000px; margin: 0 auto 16px; }
+        .message { padding: 14px 18px; border-radius: 10px; font-size: 16px;
+                   font-weight: bold; margin-bottom: 8px; }
+        .message.success { background: #d1fae5; color: #065f46; }
+        .message.error   { background: #fee2e2; color: #991b1b; }
+        table { width: 100%; max-width: 1000px; margin: 0 auto; border-collapse: collapse;
+                background: #fff; border-radius: 12px; overflow: hidden;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+        th, td { padding: 14px; text-align: right; border-bottom: 1px solid #eee; font-size: 15px; }
+        th { background: #1e293b; color: #fff; }
+        tr:hover td { background: #f8fafc; }
+        .amount { font-weight: bold; color: #059669; }
+        .voided { color: #94a3b8; text-decoration: line-through; }
+        .voided-badge { background: #fee2e2; color: #b91c1c; padding: 4px 10px;
+                        border-radius: 6px; font-size: 13px; font-weight: bold; }
+        .void-btn { background: #ef4444; color: #fff; border: none; padding: 8px 14px;
+                    border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; }
+        .void-btn:hover { background: #dc2626; }
+        .back { text-align: center; margin-top: 24px; }
+        .back a { color: #2563eb; text-decoration: none; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>🧾 فاکتورهای فروش</h1>
+
+    <div class="toolbar">
+        <div>
+            {% if show_all %}
+                <a href="{% url 'sale_list' %}">نمایش فقط امروز</a>
+            {% else %}
+                <a href="{% url 'sale_list' %}?all=1">نمایش همه (۱۰۰ مورد آخر)</a>
+            {% endif %}
+        </div>
+        <div>
+            <a href="{% url 'report' %}">📊 گزارش</a> |
+            <a href="{% url 'checkout' %}">🛒 صندوق</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>شماره</th>
+                <th>زمان</th>
+                <th>صندوق‌دار</th>
+                <th>مبلغ کل</th>
+                <th>وضعیت</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.id }}</td>
+                    <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>{{ sale.cashier.username }}</td>
+                    <td class="amount {% if sale.is_voided %}voided{% endif %}">
+                        {{ sale.total_amount|floatformat:0 }} تومان
+                    </td>
+                    <td>
+                        {% if sale.is_voided %}
+                            <span class="voided-badge">ابطال شده</span>
+                        {% else %}
+                            ✅ فعال
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not sale.is_voided %}
+                            <form method="post" action="{% url 'void_sale' sale.id %}"
+                                  onsubmit="return confirm('آیا مطمئنید فاکتور {{ sale.id }} ابطال شود؟ موجودی کالاها برمی‌گردد.');">
+                                {% csrf_token %}
+                                <button type="submit" class="void-btn">ابطال</button>
+                            </form>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">
+                    فاکتوری یافت نشد.
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="back">
+        <a href="{% url 'report' %}">← بازگشت به گزارش</a>
+    </div>
+</body>
+</html>

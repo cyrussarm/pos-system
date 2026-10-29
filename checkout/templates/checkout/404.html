@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>صفحه یافت نشد</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #eef2f5; display: flex;
+               justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; }
+        .box { background: #fff; padding: 50px 40px; border-radius: 16px;
+               box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 420px; }
+        .icon { font-size: 64px; margin-bottom: 16px; }
+        h1 { font-size: 24px; color: #1e293b; margin-bottom: 12px; }
+        p { color: #64748b; font-size: 16px; line-height: 1.8; margin-bottom: 24px; }
+        a { display: inline-block; background: #3b82f6; color: #fff; text-decoration: none;
+            padding: 14px 32px; border-radius: 10px; font-size: 17px; font-weight: bold; }
+        a:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="icon">🔍</div>
+        <h1>صفحه یافت نشد</h1>
+        <p>صفحه‌ای که دنبالش هستید وجود ندارد یا حذف شده است.</p>
+        <a href="{% url 'checkout' %}">← بازگشت به صندوق</a>
+    </div>
+</body>
+</html>
